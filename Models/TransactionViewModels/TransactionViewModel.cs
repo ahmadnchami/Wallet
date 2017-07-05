@@ -30,7 +30,28 @@ namespace Wallet.Models.TransactionViewModels
         public bool IsCr { get; set; }
         [Required]
         public DateTime DateTime { get; set; }
+        public ParsedDateTime ParsedDateTime
+        {
+            get
+            {
+                return new ParsedDateTime()
+                {
+                    Year = this.DateTime.Year,
+                    Month = this.DateTime.Month,
+                    Day = this.DateTime.Day
+                };
+            }
+        }
+
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+    }
+
+    public class ParsedDateTime
+    {
+        public Int32 Year { get; set; }
+        public Int32 Month { get; set; }
+        public Int32 Day { get; set; }
+
     }
 }

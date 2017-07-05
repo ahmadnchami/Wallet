@@ -14,7 +14,6 @@
     <Content Include="wwwroot\images\cluster-48.png" />
     <Content Include="wwwroot\images\cluster-64.png" />
     <Content Include="wwwroot\js\map.js" />
-    <Content Include="wwwroot\js\markerclusterer - Copy.js" />
     <Content Include="wwwroot\js\markerclusterer.js" />
     <Content Include="wwwroot\js\markerwithlabel.js" />
   </ItemGroup>
