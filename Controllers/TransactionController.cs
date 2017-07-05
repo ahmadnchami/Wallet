@@ -19,7 +19,7 @@ namespace Wallet.Controllers
 
         public TransactionController(ApplicationDbContext context)
         {
-            _context = context;    
+            _context = context;
         }
 
         // GET: Transaction
@@ -44,6 +44,7 @@ namespace Wallet.Controllers
                 Name = m.Name,
                 Description = m.Description,
                 Amount = m.Amount,
+                IsCr = m.IsCr,
                 DateTime = m.DateTime,
                 BankAccountId = m.BankAccountId,
                 Latitude = m.Latitude,
@@ -115,9 +116,9 @@ namespace Wallet.Controllers
                 {
                     Name = transactionViewModel.Name,
                     Description = transactionViewModel.Description,
-                    Amount = transactionViewModel.Amount,
+                    Amount = transactionViewModel.IsCr ? transactionViewModel.Amount : transactionViewModel.Amount * -1,
                     IsCr = transactionViewModel.IsCr,
-                    DateTime=transactionViewModel.DateTime,
+                    DateTime = transactionViewModel.DateTime,
                     BankAccountId = transactionViewModel.BankAccountId,
                     Latitude = transactionViewModel.Latitude,
                     Longitude = transactionViewModel.Longitude
@@ -128,7 +129,7 @@ namespace Wallet.Controllers
                 var account = _context.Accounts.SingleOrDefault<BankAccount>(m => m.Id == transactionViewModel.BankAccountId);
                 if (account == null) return NotFound();
 
-                account.Balance = account.Balance + transactionViewModel.Amount;
+                account.Balance = account.Balance + transaction.Amount;
                 //account.Balance = handleTransactionAmount(account.Balance, transactionViewModel.Amount, transactionViewModel.IsCr);
                 _context.Update(account);
 
@@ -160,8 +161,8 @@ namespace Wallet.Controllers
                 Name = transaction.Name,
                 Description = transaction.Description,
                 Amount = transaction.Amount,
-                IsCr=transaction.IsCr,
-                DateTime=transaction.DateTime,
+                IsCr = transaction.IsCr,
+                DateTime = transaction.DateTime,
                 BankAccountId = transaction.BankAccountId,
                 Latitude = transaction.Latitude,
                 Longitude = transaction.Longitude
@@ -266,7 +267,7 @@ namespace Wallet.Controllers
             var account = _context.Accounts.SingleOrDefault<BankAccount>(m => m.Id == transaction.BankAccountId);
 
 
-            if (transaction == null || account==null)
+            if (transaction == null || account == null)
             {
                 return NotFound();
             }
@@ -292,6 +293,7 @@ namespace Wallet.Controllers
                 Name = m.Name,
                 Description = m.Description,
                 Amount = m.Amount,
+                IsCr = m.IsCr,
                 DateTime = m.DateTime,
                 BankAccountId = m.BankAccountId,
                 Latitude = m.Latitude,

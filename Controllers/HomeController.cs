@@ -27,6 +27,7 @@ namespace Wallet.Controllers
                 Name = m.Name,
                 Description = m.Description,
                 Amount = m.Amount,
+                IsCr=m.IsCr,
                 DateTime = m.DateTime,
                 BankAccountId = m.BankAccountId,
                 Latitude = m.Latitude,

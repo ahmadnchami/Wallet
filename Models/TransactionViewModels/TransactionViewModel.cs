@@ -17,14 +17,14 @@ namespace Wallet.Models.TransactionViewModels
         [DataType(DataType.Currency)]
         public decimal Amount
         {
-            get
-            {
-                return IsCr ? this._amount : this._amount * -1;
-            }
-            set
-            {
-                this._amount = value;
-            }
+            get;
+            //{
+            //    return IsCr ? this._amount : this._amount * -1;
+            //}
+            set;
+            //{
+            //    this._amount = value;
+            //}
         }
         public int BankAccountId { get; set; }
         public bool IsCr { get; set; }

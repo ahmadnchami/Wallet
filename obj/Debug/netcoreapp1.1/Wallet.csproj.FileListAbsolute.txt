@@ -6,4 +6,3 @@ C:\Workspace\VS17\Wallet\Wallet\bin\Debug\netcoreapp1.1\Wallet.pdb
 C:\Workspace\VS17\Wallet\Wallet\obj\Debug\netcoreapp1.1\Wallet.AssemblyInfo.cs
 C:\Workspace\VS17\Wallet\Wallet\obj\Debug\netcoreapp1.1\Wallet.dll
 C:\Workspace\VS17\Wallet\Wallet\obj\Debug\netcoreapp1.1\Wallet.pdb
-C:\Workspace\VS17\Wallet\Wallet\obj\Debug\netcoreapp1.1\Wallet.csprojResolveAssemblyReference.cache
