@@ -1,0 +1,202 @@
+﻿@model IEnumerable<Wallet.Models.TransactionViewModels.TransactionViewModel>
+
+@{
+    ViewData["Title"] = "Map";
+}
+<style>
+    #map {
+        height: 500px;
+    }
+
+    .transaction-info-window {
+        cursor: default;
+        margin-top: 3px;
+    }
+
+        .transaction-info-window .title {
+            overflow: hidden;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .transaction-info-window .full-width {
+            width: 180px;
+        }
+
+        .transaction-info-window .details {
+            margin-top: 2px;
+            color: #555;
+        }
+
+    .marker-label {
+        /*max-width: 100px;*/
+        width: 60px;
+        padding: 0 5px;
+        border-radius: 3px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+
+    .marker-label-green {
+        border: 2px solid #ffffff;
+        background: #27ae60;
+        color: #ffffff;
+    }
+
+    .marker-label-red {
+        border: 2px solid #ffffff;
+        background: #F44336;
+        color: #ffffff;
+    }
+</style>
+<div class="margin-top-20" />
+<a class="btn btn-warning btn-sm" asp-action="Index" role="button">
+    <i class="fa fa-chevron-left"></i>&nbsp;Back To List
+</a>&nbsp;&nbsp;Debit Transactions Map
+
+<div id="map" class="margin-top-10">
+
+</div>
+
+@section Scripts{
+    <environment names="Development,Staging,Production">
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8tCfNMca2-h4sP9mwwio8reDiw4uLIw&libraries=places"></script>
+
+        <script src="~/js/markerclusterer.js"></script>
+        <script src="~/js/markerwithlabel.js"></script>
+
+        <script type="text/javascript">
+            var map, iw;
+                var arr = new Array();
+                @foreach (var item in Model)
+                {
+                    @:arr.push({
+                    @:name: "@item.Name",
+                    @:description: "@item.Description",
+                    @:amount: "@item.Amount",
+                    @:isCr: "@item.IsCr",
+                    @:datetime: "@item.DateTime",
+                    @:lat: "@item.Latitude",
+                    @:lng: "@item.Longitude"
+                    @:});
+                }
+
+                var initMap = function () {
+
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: { lat: 33.85898374068318, lng: 35.48037319882814 },
+                        zoom: 8
+                    });
+
+                    map.setOptions({
+                        styles: [
+                            {
+                                featureType: 'poi.business',
+                                stylers: [{ visibility: 'off' }]
+                            },
+                            {
+                                featureType: 'transit',
+                                elementType: 'labels.icon',
+                                stylers: [{ visibility: 'off' }]
+                            }
+                        ]
+                    });
+
+                    iw = new google.maps.InfoWindow();
+
+                    var markers = [];
+                    for (var i = 0; i < arr.length; i++) {
+                        var debit = arr[i].isCr === "False";
+                        if (debit) {
+                            var marker = new MarkerWithLabel({
+                                map: map,
+                                position: new google.maps.LatLng(arr[i].lat, arr[i].lng),
+                                icon: {
+                                    url: '/images/dot.png',
+                                    size: new google.maps.Size(16, 16),
+                                    origin: new google.maps.Point(0, 0)
+                                },
+                                labelContent: '$ ' + arr[i].amount,
+                                labelAnchor: new google.maps.Point(30, 16),
+                                labelClass: "marker-label marker-label-red",
+                                labelInBackground: true,
+                                element: arr[i]
+                            });
+
+                            google.maps.event.addListener(marker, 'mouseover', function () {
+                                iw.setContent('<div class="transaction-info-window gm-style"><div class="title full-width">' + this.element.name + '</div><div class="details">' + this.element.description + '</div><div><small>' + this.element.datetime + '</small></div></div>');
+                                iw.open(map, this);
+                            });
+
+                            google.maps.event.addListener(marker, 'mouseout', function () {
+                                iw.close();
+                            });
+
+                            markers.push(marker);
+                        }
+                    }
+
+                    // Add a marker clusterer to manage the markers.
+                    var markerCluster = new MarkerClusterer(map, markers,
+                        {
+                            imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', gridSize: 30, maxZoom: 17, styles: [
+                                {
+                                    url: '/images/cluster-48.png',
+                                    width: 48,
+                                    height: 48,
+                                    anchor: [48, 48],
+                                    textSize: 10,
+                                    textColor: '#ffffff'
+                                },
+                                {
+                                    url: '/images/cluster-1.png',
+                                    width: 32,
+                                    height: 32,
+                                    anchor: [32, 32],
+                                    textSize: 12,
+                                    textColor: '#383838'
+                                },
+                                {
+                                    url: '/images/cluster-2.png',
+                                    width: 48,
+                                    height: 48,
+                                    anchor: [48, 48],
+                                    textSize: 12,
+                                    textColor: '#ffffff'
+                                },
+                                {
+                                    url: '/images/cluster-3.png',
+                                    width: 48,
+                                    height: 48,
+                                    anchor: [48, 48],
+                                    textSize: 12,
+                                    textColor: '#ffffff'
+                                }]});
+
+                    markerCluster.setCalculator(function (markers, numStyles) {
+                        var val = 0,//this will be the text you see in the cluster-icon
+                            index = 0;
+
+                            for (var m = 0; m < markers.length; ++m) {
+                                //add the value of the markers prop-property to val
+                                val += Number(markers[m].element.amount);
+                            }
+
+                            index = Math.min(index, numStyles);
+
+                            val = '$ '+ parseFloat(Math.round(val * 100) / 100).toFixed(2);
+
+                            return {
+                                text: val,
+                                index: index
+                            };
+                        }
+                    );
+                };
+
+                initMap();
+        </script>
+    </environment>
+}

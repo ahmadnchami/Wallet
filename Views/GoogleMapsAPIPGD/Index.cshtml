@@ -1,0 +1,185 @@
+
+@{
+    ViewData["Title"] = "GoogleMapsAPIPGD";
+}
+<style>
+    #map {
+        height: 500px;
+    }
+
+    .map-widescreen-container {
+        margin: 0 -15px;
+    }
+
+    .items{
+        max-height: 500px;
+        overflow: auto;
+    }
+</style>
+<div class="row margin-top-10">
+    <div class="col-md-8">
+        <div id="map">
+
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <span class="items-count"></span>
+        <ul class="items"></ul>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <environment names="Development,Staging,Production">
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8tCfNMca2-h4sP9mwwio8reDiw4uLIw&libraries=places&callback=initMap"
+                async defer></script>
+
+        <script>
+            var markers = [];
+            var flightPath;
+            var path = [];
+            var places = [];
+            var lastLatLng;
+
+            var initMap = function () {
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    center: { lat: 33.85898374068318, lng: 35.48037319882814 },
+                    zoom: 8
+                });
+
+                var service = new google.maps.places.PlacesService(map);
+
+                google.maps.event.addListener(map, "click", function (a) {
+
+                    var initialLatLng = {
+                        lat: a.latLng.lat(), lng: a.latLng.lng()
+                    };
+
+                    var index = 0;
+                    var count = 200;
+                    var row = 0;    
+                    var maxRow = 50000;
+
+
+                    var getGasStations = function (index, lat, lng, c) {
+                        var request = {
+                            location: new google.maps.LatLng(lat, lng),
+                            radius: '200',
+                            type: ['gas_station']
+
+                        }
+                        service.nearbySearch(request, function (results, status) {
+                            if (status == google.maps.places.PlacesServiceStatus.OK
+                                || google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+
+                                if (results!=null && results.length > 0) {
+
+                                    for (var i = 0; i < results.length; i++) {
+                                        var place = results[i];
+                                        var marker = new google.maps.Marker({
+                                            position: place.geometry.location,
+                                            icon: 'images/gas-1-small.png',
+                                            map: map
+                                        });
+
+                                        var found = false;
+
+                                        places.forEach((m, n) => {
+                                            if (m.place_id === place.place_id) found = true;
+                                        });
+
+                                        if (!found) {
+                                            places.push(place);
+                                            $('items-count').innerHTML = places.length;
+                                            $('.items').append('<li>' + place.name + '</li>')
+                                        }
+
+                                    }
+
+                                }
+                                console.log(results);
+                                return c(index);
+                            } else {
+                                console.log(status);
+
+                            }
+                        });
+                    }
+
+                    var callback = function (i) {
+                        index = i + 1;
+                        var newLatLng = shift_position(lastLatLng.lat, lastLatLng.lng, 1000 / 1000, 0);
+
+                        if (index == count) {
+                            index = 0;
+                            row = row + 1;
+
+                            if (row == maxRow) {
+                                console.log(markers.length);
+                                return;
+                            }
+                            var newLatLng = shift_position(initialLatLng.lat, initialLatLng.lng, 0, ((1000 / 1000) * -1) * row);
+                        }
+
+                        window.setTimeout(function () {
+                            //var marker = new google.maps.Marker({
+                            //    position: new google.maps.LatLng(newLatLng.lat, newLatLng.lng),
+                            //    map: map
+                            //});
+
+                            //markers.push(marker);
+                            path.push(newLatLng);
+
+                            flightPath.setPath(path);
+                            lastLatLng = newLatLng;
+
+                            getGasStations(index, newLatLng.lat, newLatLng.lng, callback);
+                        }, 100);
+
+                    };
+
+                    //var marker = new google.maps.Marker({
+                    //    position: new google.maps.LatLng(initialLatLng.lat, initialLatLng.lng),
+                    //    map: map
+                    //});
+
+                    //markers.push(marker);
+                    
+                    lastLatLng = { lat: initialLatLng.lat, lng: initialLatLng.lng };
+
+                    path.push(initialLatLng);
+                     flightPath = new google.maps.Polyline({
+                        path: path,
+                        geodesic: true,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 2,
+                        map:map
+                    });
+
+
+                    getGasStations(index, initialLatLng.lat, initialLatLng.lng, callback);
+
+                });
+            }
+
+
+            var shift_position = function (lat, lng, x, y) {
+                var r_earth = 6378;
+                var pi = Math.PI;
+
+                var new_latitude = lat + (y / r_earth) * (180 / pi);
+                var new_longitude = lng + (x / r_earth) * (180 / pi) / Math.cos(lat * pi / 180);
+
+                return { lat: new_latitude, lng: new_longitude };
+            }
+
+        </script>
+
+    </environment>
+}
+
+

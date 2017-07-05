@@ -1,0 +1,25 @@
+﻿#map {
+    height: 400px;
+    border: 1px solid #333;
+}
+
+#places-search{
+    max-width: 250px;
+    margin:10px;
+}
+
+.centerMarker {
+    position: absolute;
+    /*url of the marker*/
+    background: url(http://maps.gstatic.com/mapfiles/markers2/marker.png) no-repeat;
+    /*center the marker*/
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    /*fix offset when needed*/
+    margin-left: -10px;
+    margin-top: -34px;
+    /*size of the image*/
+    height: 34px;
+    width: 20px;
+}

@@ -1,0 +1,96 @@
+@model IEnumerable<Wallet.Models.TransactionViewModels.TransactionViewModel>
+
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="margin-top-30"></div>
+
+<div class="row margin-top-15">
+    <div class="col-md-6">
+        @foreach (var item in ViewBag.Accounts)
+        {
+            @*<label class="custom-control custom-radio">
+                <input id="radio1" name="radio" type="radio" class="custom-control-input" checked>
+                <span class="custom-control-indicator"></span>
+                <span class="custom-control-description">@item.Bank <small>@item.AccountId</small></span>
+            </label>*@
+        }
+    </div>
+    <div class="col-md-6">
+        <a asp-action="Map" class="btn btn-outline-primary btn-sm pull-right margin-left-10"><i class="fa fa-map"></i>&nbsp;&nbsp;View Map</a>
+        <a asp-action="Create" class="btn btn-outline-success btn-sm pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add Transaction</a>
+    </div>
+</div>
+<div class="margin-top-30"></div>
+<div class="transactions-table">
+    <table class="table table-hover table-sm">
+        <thead class="">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Amount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DateTime)
+                </th>
+                @*<th>
+                        @Html.DisplayNameFor(model => model.BankAccountId)
+                    </th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="transaction-row">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    @{
+                        String cls = item.IsCr ? "text-success" : "text-danger";
+                        <td class="@cls">
+                            <strong>@Html.DisplayFor(modelItem => item.Amount)</strong>
+                        </td>
+                    }
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateTime)
+                    </td>
+                    <td class="transaction-action-cell">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">VIEW</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">EDIT</a>
+                        @*<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">DELETE</a>*@
+                    </td>
+                </tr>
+                        }
+        </tbody>
+    </table>
+</div>
+
+<div class="transactions-list">
+    <div class="list-group">
+        @foreach (var item in Model)
+        {
+            String listGroupItemClass = item.IsCr ? "list-group-item-success" : "list-group-item-danger";
+
+            <a asp-action="Details" asp-route-id="@item.Id" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@item.Name</h5>
+                    <small>@item.DateTime</small>
+                </div>
+                <p class="mb-1">@item.Description</p>
+                
+                <small>@item.Amount.ToString("C", System.Globalization.CultureInfo.CurrentCulture)</small>
+            </a>
+        }
+    </div>
+</div>

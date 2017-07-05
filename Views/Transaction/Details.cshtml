@@ -1,0 +1,52 @@
+@model Wallet.Models.TransactionViewModels.TransactionViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@section CreateMapCssSection{
+    <link href="~/css/map.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="margin-top-30"></div>
+<div>
+    <a class="btn btn-warning btn-sm" asp-action="Index" role="button">
+        <i class="fa fa-chevron-left"></i>&nbsp;Back To List
+    </a>
+</div>
+<div class="margin-top-10"></div>
+
+<div class="card">
+    <h3 class="card-header">
+
+        @Html.DisplayFor(model => model.Name)&nbsp;&nbsp;
+        @{
+            String cls = Model.IsCr ? "text-success" : "text-danger";
+            <span class="card-text @cls">
+                <strong>@Html.DisplayFor(modelItem => modelItem.Amount)</strong>
+            </span>
+        }
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info btn-sm pull-right">
+            <i class="fa fa-pencil-square"></i>&nbsp;&nbsp;Edit 
+        </a>
+
+    </h3>
+    <div class="card-block">
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="card-title">
+                    @Html.DisplayFor(model => model.Description)
+                </h4>
+
+                <p class="card-text">
+                    @Html.DisplayFor(model => model.DateTime)
+                </p>
+            </div>
+            @*<div class="col-md-6">
+                <div id="map"></div>
+            </div>*@
+        </div>
+
+    </div>
+</div>
+
