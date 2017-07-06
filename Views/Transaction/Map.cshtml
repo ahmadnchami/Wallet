@@ -1,8 +1,9 @@
-﻿@model IEnumerable<Wallet.Models.TransactionViewModels.TransactionViewModel>
+﻿@model Wallet.Models.TransactionViewModels.TransactionViewModelList
 
 @{
     ViewData["Title"] = "Map";
 }
+
 <style>
     #map {
         height: 500px;
@@ -30,7 +31,7 @@
 
     .marker-label {
         /*max-width: 100px;*/
-        width: 60px;
+        width: 80px;
         padding: 0 5px;
         border-radius: 3px;
         text-align: center;
@@ -50,11 +51,50 @@
         background: #F44336;
         color: #ffffff;
     }
+
+    @@media screen and (max-width: 767px) {
+        form {
+            display: none !important;
+        }
+    }
 </style>
-<div class="margin-top-20" />
-<a class="btn btn-warning btn-sm" asp-action="Index" role="button">
-    <i class="fa fa-chevron-left"></i>&nbsp;Back To List
-</a>&nbsp;&nbsp;Debit Transactions Map
+<div class="row margin-top-20">
+    <div class="col-md-4">
+        <a class="btn btn-warning btn-sm" asp-action="Index" role="button">
+            <i class="fa fa-chevron-left"></i>&nbsp;Back To List
+        </a>&nbsp;&nbsp;Debit Transactions Map
+    </div>
+    <div class="col-md-8">
+        <form name="map-form" onsubmit="updateFormAction(this)" class="form-inline pull-right">
+            <select id="year-select" class="form-control-sm">
+                <option value="0">Year</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+            </select>
+            <select id="month-select" class="form-control-sm margin-left-05">
+                <option value="0">Month</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm margin-left-10"><i class="fa fa-filter"></i>&nbsp;&nbsp;Filter</button>
+            @if (Model.Filter.Active)
+            {
+                <a asp-action="/" class="btn btn-outline-success btn-sm margin-left-05"><i class="fa fa-times"></i>&nbsp;&nbsp;Clear</a>
+            }
+        </form>
+    </div>
+</div>
+
 
 <div id="map" class="margin-top-10">
 
@@ -66,11 +106,38 @@
 
         <script src="~/js/markerclusterer.js"></script>
         <script src="~/js/markerwithlabel.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
 
         <script type="text/javascript">
+            /**
+             * load filter if available
+             */
+            (function () {
+                var filterActive = ("@Model.Filter.Active" === "True");
+                if (filterActive) {
+                    document.getElementById('year-select').value ="@Model.Filter.Year";
+                    document.getElementById('month-select').value ="@Model.Filter.Month";
+                }
+             })();
+
+            var updateFormAction = function (frm) {
+                var yearSelect = document.getElementById('year-select');
+                var year = yearSelect.options[yearSelect.selectedIndex].value;
+
+                var monthSelect = document.getElementById('month-select');
+                var month = monthSelect.options[monthSelect.selectedIndex].value;
+
+                if (year == "0" || month == 0) {
+                    frm.action = "/transaction/map";
+                    return;
+                }
+
+               frm.action = "/transaction/map/" + year + "/" + month;
+            }
+
             var map, iw;
                 var arr = new Array();
-                @foreach (var item in Model)
+                @foreach (var item in Model.List)
                 {
                     @:arr.push({
                     @:name: "@item.Name",
@@ -108,34 +175,31 @@
 
                     var markers = [];
                     for (var i = 0; i < arr.length; i++) {
-                        var debit = arr[i].isCr === "False";
-                        if (debit) {
-                            var marker = new MarkerWithLabel({
-                                map: map,
-                                position: new google.maps.LatLng(arr[i].lat, arr[i].lng),
-                                icon: {
-                                    url: '/images/dot.png',
-                                    size: new google.maps.Size(16, 16),
-                                    origin: new google.maps.Point(0, 0)
-                                },
-                                labelContent: '$ ' + arr[i].amount,
-                                labelAnchor: new google.maps.Point(30, 16),
-                                labelClass: "marker-label marker-label-red",
-                                labelInBackground: true,
-                                element: arr[i]
-                            });
+                        var marker = new MarkerWithLabel({
+                            map: map,
+                            position: new google.maps.LatLng(arr[i].lat, arr[i].lng),
+                            icon: {
+                                url: '/images/dot.png',
+                                size: new google.maps.Size(16, 16),
+                                origin: new google.maps.Point(0, 0)
+                            },
+                            labelContent: '$ ' + arr[i].amount,
+                            labelAnchor: new google.maps.Point(30, 16),
+                            labelClass: "marker-label marker-label-red",
+                            labelInBackground: true,
+                            element: arr[i]
+                        });
 
-                            google.maps.event.addListener(marker, 'mouseover', function () {
-                                iw.setContent('<div class="transaction-info-window gm-style"><div class="title full-width">' + this.element.name + '</div><div class="details">' + this.element.description + '</div><div><small>' + this.element.datetime + '</small></div></div>');
-                                iw.open(map, this);
-                            });
+                        google.maps.event.addListener(marker, 'mouseover', function () {
+                            iw.setContent('<div class="transaction-info-window gm-style"><div class="title full-width">' + this.element.name + '</div><div class="details">' + this.element.description + '</div><div><small>' + this.element.datetime + '</small></div></div>');
+                            iw.open(map, this);
+                        });
 
-                            google.maps.event.addListener(marker, 'mouseout', function () {
-                                iw.close();
-                            });
+                        google.maps.event.addListener(marker, 'mouseout', function () {
+                            iw.close();
+                        });
 
-                            markers.push(marker);
-                        }
+                        markers.push(marker);
                     }
 
                     // Add a marker clusterer to manage the markers.

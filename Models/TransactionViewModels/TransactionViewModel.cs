@@ -6,6 +6,30 @@ using System.Threading.Tasks;
 
 namespace Wallet.Models.TransactionViewModels
 {
+    public class TransactionViewModelList
+    {
+        public List<TransactionViewModel> List { get; set; }
+        [DataType(DataType.Currency)]
+        public decimal TotalDr
+        {
+            get
+            {
+                return List.Where(x => x.IsCr == false).Sum(m => m.Amount);
+            }
+        }
+        [DataType(DataType.Currency)]
+        public decimal TotalCr
+        {
+            get
+            {
+                return List.Where(x => x.IsCr).Sum(m => m.Amount);
+            }
+        }
+
+        public Boolean Filtered { get; set; }
+
+        public TransactionFilter Filter { get; set; }
+    }
     public class TransactionViewModel
     {
         public int Id { get; set; }
@@ -17,15 +41,9 @@ namespace Wallet.Models.TransactionViewModels
         [DataType(DataType.Currency)]
         public decimal Amount
         {
-            get;
-            //{
-            //    return IsCr ? this._amount : this._amount * -1;
-            //}
-            set;
-            //{
-            //    this._amount = value;
-            //}
+            get; set;
         }
+
         public int BankAccountId { get; set; }
         public bool IsCr { get; set; }
         [Required]
@@ -53,5 +71,12 @@ namespace Wallet.Models.TransactionViewModels
         public Int32 Month { get; set; }
         public Int32 Day { get; set; }
 
+    }
+
+    public class TransactionFilter
+    {
+        public int? Year { get; set; }
+        public int? Month { get; set; }
+        public bool Active { get; set; }
     }
 }

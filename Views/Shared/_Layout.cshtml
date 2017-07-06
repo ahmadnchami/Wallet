@@ -38,7 +38,7 @@
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
-    <nav class="navbar navbar-inverse bg-inverse navbar-toggleable-md fixed-top">
+    <nav id="navbar" class="navbar navbar-inverse bg-inverse navbar-toggleable-md fixed-top">
         <div class="container">
               <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -48,7 +48,7 @@
             </a>
             <div class="navbar-collapse collapse" id="navbarText">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active"><a asp-area="" asp-controller="Transaction" asp-action="Index" class="nav-link">Transactions</a></li>
+                    <li class="nav-item"><a asp-area="" asp-controller="Transaction" asp-action="Index" class="nav-link">Transactions</a></li>
                     <li class="nav-item"><a asp-area="" asp-controller="BankAccount" asp-action="Index" class="nav-link">Accounts</a></li>
                     @*<li class="nav-item"><a asp-area="" asp-controller="GoogleMapsAPIPGD" asp-action="Index" class="nav-link">GoogleMapsAPIPGD</a></li>*@
                 </ul>

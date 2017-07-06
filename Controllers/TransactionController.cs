@@ -22,22 +22,12 @@ namespace Wallet.Controllers
             _context = context;
         }
 
-        // GET: Transaction
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        [Route("transaction")]
+        [Route("transaction/{year}/{month}")]
+        public async Task<IActionResult> Index(Int32? year, Int32? month)
         {
-            //var transactionViewModel = new List<TransactionViewModel>();
-            //transactionViewModel.Add(new TransactionViewModel()
-            //{
-            //    Id = -1,
-            //    Name = "bla",
-            //    Description = "dsad",
-            //    Amount = 100,
-            //    DateTime = DateTime.UtcNow,
-            //    BankAccountId = 2
-
-            //});
-
-
+            Boolean filtered = false;
             var transactionViewModel = await _context.Transactions.OrderByDescending(x => x.DateTime).Select(m => new TransactionViewModel()
             {
                 Id = m.Id,
@@ -51,12 +41,29 @@ namespace Wallet.Controllers
                 Longitude = m.Longitude
             }).ToListAsync<TransactionViewModel>();
 
+            if (year != null && month != null)
+            {
+                transactionViewModel = transactionViewModel.Where(x => x.ParsedDateTime.Year == year && x.ParsedDateTime.Month == month).Select(m => m).ToList<TransactionViewModel>();
+                filtered = true;
+            }
+
+            TransactionViewModelList modelList = new TransactionViewModelList()
+            {
+                List = transactionViewModel,
+                Filter = new TransactionFilter()
+                {
+                    Year = year,
+                    Month = month,
+                    Active = filtered
+                }
+            };
+
             ViewBag.Accounts = await _context.Accounts.ToListAsync<BankAccount>();
 
-            return View(transactionViewModel);
+            return View(modelList);
         }
 
-        // GET: Transaction/Details/5
+        [Route("transaction/details/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -284,10 +291,12 @@ namespace Wallet.Controllers
 
         [HttpGet]
         [Route("transaction/map")]
-        public async Task<IActionResult> Map()
+        [Route("transaction/map/{year}/{month}")]
+        public async Task<IActionResult> Map(Int32? year, Int32? month)
         {
 
-            var transactionViewModel = await _context.Transactions.OrderByDescending(x => x.DateTime).Select(m => new TransactionViewModel()
+            Boolean filtered = false;
+            var transactionViewModel = await _context.Transactions.OrderByDescending(x => x.DateTime).Where(x => x.IsCr == false).Select(m => new TransactionViewModel()
             {
                 Id = m.Id,
                 Name = m.Name,
@@ -300,7 +309,24 @@ namespace Wallet.Controllers
                 Longitude = m.Longitude
             }).ToListAsync<TransactionViewModel>();
 
-            return View(transactionViewModel);
+            if (year != null && month != null)
+            {
+                transactionViewModel = transactionViewModel.Where(x => x.ParsedDateTime.Year == year && x.ParsedDateTime.Month == month).Select(m => m).ToList<TransactionViewModel>();
+                filtered = true;
+            }
+
+            TransactionViewModelList modelList = new TransactionViewModelList()
+            {
+                List = transactionViewModel,
+                Filter = new TransactionFilter()
+                {
+                    Year = year,
+                    Month = month,
+                    Active = filtered
+                }
+            };
+
+            return View(modelList);
         }
 
         private decimal handleTransactionAmount(decimal balance, decimal amount, bool isCr)
