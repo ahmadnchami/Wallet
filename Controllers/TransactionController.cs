@@ -46,6 +46,10 @@ namespace Wallet.Controllers
                 transactionViewModel = transactionViewModel.Where(x => x.ParsedDateTime.Year == year && x.ParsedDateTime.Month == month).Select(m => m).ToList<TransactionViewModel>();
                 filtered = true;
             }
+            else
+            {
+                return RedirectToAction("Index", new { year = DateTime.Now.Year, month = DateTime.Now.Month });
+            }
 
             TransactionViewModelList modelList = new TransactionViewModelList()
             {
@@ -146,6 +150,8 @@ namespace Wallet.Controllers
             return View(transactionViewModel);
         }
 
+
+        [Route("transaction/edit/{id}")]
         // GET: Transaction/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -178,6 +184,7 @@ namespace Wallet.Controllers
             return View(transactionViewModel);
         }
 
+        [Route("transaction/edit/{id}")]
         // POST: Transaction/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -236,6 +243,7 @@ namespace Wallet.Controllers
             return View(transactionViewModel);
         }
 
+        [Route("transaction/delete/{id}")]
         // GET: Transaction/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -265,6 +273,7 @@ namespace Wallet.Controllers
             return View(transactionViewModel);
         }
 
+        [Route("transaction/delete/confirm/{id}")]
         // POST: Transaction/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
